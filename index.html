@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#030719">
+  <meta name="description" content="A personal compendium in the Velvet Room.">
+  <title>Compendium — Summon</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2300fff0' d='M32 2 60 32 32 62 4 32Z'/%3E%3Cpath fill='%230b0752' d='M32 12 50 32 32 52 14 32Z'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/linux-biolinum-regular.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script src="entries.js" defer></script>
+  <script src="fusion-data.js" defer></script>
+  <script src="fusion.js" defer></script>
+  <script src="persona-data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <button id="start-screen" class="start-screen" type="button">
+    <span class="start-kicker">PERSONA 3 RELOAD</span>
+    <span class="start-title">Full Compendium</span>
+    <span class="start-prompt"><span class="start-prompt-text"><span class="for-mouse">Press any key</span><span class="for-touch">Tap to start</span></span></span>
+  </button>
+  <main class="stage" aria-label="Persona compendium" inert>
+    <div class="backdrop" aria-hidden="true"></div>
+
+    <section class="identity" aria-label="Your profile">
+      <div class="identity-plate">
+        <div class="level"><span>Lv</span> 72</div>
+        <div class="name-label"><label for="player-name">LEVEL / NAME</label><span></span></div>
+        <input id="player-name" class="player-name" type="text" placeholder="Click to edit" aria-label="Edit your name" maxlength="24" autocomplete="off" spellcheck="false">
+      </div>
+    </section>
+
+    <div class="wallet" aria-label="Pay money: 121,432 yen">
+      <span class="yen">¥</span><span class="balance">121,432</span>
+      <span class="wallet-label">Pay money</span><span class="wallet-rule"></span>
+      <span class="wallet-dashes" aria-hidden="true">———————</span>
+    </div>
+
+    <nav class="sorting" aria-label="Sort compendium">
+      <button class="sort sort-arcana" data-sort="arcana" aria-pressed="false">By Arcana</button>
+      <button class="sort sort-level active" data-sort="level" aria-pressed="true">By Level</button>
+      <button class="sort sort-alphabet" data-sort="name" aria-pressed="false">By Alphabet</button>
+    </nav>
+
+
+    <header class="heading">
+      <div class="compendium-title">Compendium</div>
+      <h1>Summ<span>on</span></h1>
+    </header>
+
+    <div class="prompt"><span id="prompt-text">Select a Persona.</span></div>
+
+    <section class="list-panel" aria-label="Persona list">
+      <div id="persona-list" class="persona-list" role="listbox" aria-label="Personas" tabindex="0"></div>
+    </section>
+    <aside id="fusion-panel" class="fusion-panel" aria-labelledby="fusion-title" hidden>
+      <header class="fusion-header">
+        <span class="fusion-arcana" id="fusion-arcana"></span>
+        <h2 class="fusion-title" id="fusion-title"></h2>
+        <span class="fusion-level" id="fusion-level"></span>
+        <button class="fusion-close" id="fusion-close" type="button" aria-label="Close fusion recipes">✕</button>
+      </header>
+      <div class="fusion-body" id="fusion-body">
+        <div class="persona-info" id="persona-info"></div>
+        <h3 class="info-heading">Fusion</h3>
+        <p class="fusion-summary" id="fusion-summary"></p>
+        <ol class="fusion-recipes" id="fusion-recipes"></ol>
+      </div>
+    </aside>
+    <div class="scroll-track" id="scroll-track" aria-hidden="true"><div class="scroll-thumb" id="scroll-thumb"></div></div>
+
+    <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+  </main>
+</body>
+</html>

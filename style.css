@@ -7,11 +7,12 @@
 :root{color-scheme:dark;--cyan:#00ffed;--violet:#5420d9;--scale:1}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{background:#020516;color:var(--cyan);font-family:Biolinum,Barlow,'Arial Narrow',sans-serif}
+body:before{content:'';position:fixed;inset:-50%;z-index:-1;pointer-events:none;background:repeating-linear-gradient(120deg,#4d5cff 0,#1e2dfd 12vmax,#0005fb 24vmax,#0004c4 36vmax,#0005fb 48vmax,#1e2dfd 60vmax,#4d5cff 72vmax)}
+body{background:#0004c4;color:var(--cyan);font-family:Biolinum,Barlow,'Arial Narrow',sans-serif}
 button,input{font:inherit}
 button{border:0;color:inherit;cursor:pointer}
 button:focus-visible{outline:3px solid white;outline-offset:7px}
-.stage{position:absolute;width:1920px;height:1080px;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--scale));overflow:hidden;isolation:isolate;background:#020718}
+.stage{position:absolute;width:1920px;height:1080px;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--scale));overflow:hidden;isolation:isolate;background:#020718;box-shadow:0 0 0 5px #fff,0 0 0 11px #02041a,0 0 50px 16px rgba(0,0,20,.55)}
 .backdrop{position:absolute;inset:0;z-index:-2;background:#030619 url('assets/velvet-room.png') center/100% 100% no-repeat}
 .identity{position:absolute;top:26px;left:29px;width:379px;height:143px;transform:rotate(-6deg);color:#ab67ed;background:rgba(74,180,255,.68);box-shadow:13px -9px 0 rgba(31,118,255,.7);padding:0 14px 9px 8px}
 .identity-plate{position:relative;height:100%;background:#020203;padding:13px 17px 0}
@@ -109,12 +110,13 @@ button:focus-visible{outline:3px solid white;outline-offset:7px}
 @media(hover:none){.for-mouse{display:none}.for-touch{display:inline}}
 @media(prefers-reduced-motion:no-preference){.start-prompt-text{animation:start-pulse 1.4s ease-in-out infinite}}
 @keyframes start-pulse{50%{opacity:.35}}
+@keyframes bg-shuffle{to{transform:translate(-18%,-10%)}}
 @keyframes fusion-in{from{opacity:0;transform:translateX(-40px)}}
 @media(prefers-reduced-motion:reduce){.start-screen{transition:none}}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:700px) and (orientation:portrait){
   html,body{min-width:320px;overflow-y:auto}
-  .stage{position:relative;left:0;top:0;width:100%;height:100dvh;min-height:620px;transform:none}
+  .stage{position:relative;left:0;top:0;width:100%;height:100dvh;min-height:620px;transform:none;box-shadow:none}
   .backdrop{background-size:auto 100%;background-position:27% center;opacity:.65}
   .stage:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent,rgba(1,5,22,.55));z-index:-1;pointer-events:none}
   .identity{left:15px;top:20px;width:205px;height:88px;padding:0 7px 5px;box-shadow:7px -5px 0 rgba(31,118,255,.7)}
@@ -135,4 +137,4 @@ button:focus-visible{outline:3px solid white;outline-offset:7px}
   .identity{width:182px;left:12px}.wallet{width:105px;right:10px}.player-name{font-size:23px}
   .persona-row{grid-template-columns:60px 36px 12px minmax(0,1fr) 40px;gap:3px;padding-right:6px}.row-name{font-size:23px}.row-cost.placeholder{font-size:17px}
 }
-@media(prefers-reduced-motion:no-preference){.fusion-panel:not([hidden]){animation:fusion-in .18s ease-out}.sort,.player-name{transition:background-color .15s}.persona-row{transition:background-color .07s}}
+@media(prefers-reduced-motion:no-preference){body:before{animation:bg-shuffle 12s ease-in-out infinite alternate}.fusion-panel:not([hidden]){animation:fusion-in .18s ease-out}.sort,.player-name{transition:background-color .15s}.persona-row{transition:background-color .07s}}

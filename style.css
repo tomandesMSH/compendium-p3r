@@ -14,6 +14,8 @@ button{border:0;color:inherit;cursor:pointer}
 button:focus-visible{outline:3px solid white;outline-offset:7px}
 .stage{position:absolute;width:1920px;height:1080px;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--scale));overflow:hidden;isolation:isolate;background:#020718;box-shadow:0 0 0 5px #fff,0 0 0 11px #02041a,0 0 50px 16px rgba(0,0,20,.55)}
 .backdrop{position:absolute;inset:0;z-index:-2;background:#030619 url('assets/velvet-room.png') center/100% 100% no-repeat}
+.elizabeth{position:absolute;inset:0;z-index:-1;padding:0;background:none;cursor:pointer;clip-path:polygon(200px 420px,360px 366px,480px 430px,490px 530px,470px 660px,520px 780px,600px 760px,670px 730px,744px 730px,720px 790px,660px 860px,660px 1080px,110px 1080px,130px 840px,200px 720px,156px 640px,150px 520px)}
+.elizabeth:focus-visible{outline:0}
 .identity{position:absolute;top:26px;left:29px;width:379px;height:143px;transform:rotate(-6deg);color:#ab67ed;background:rgba(74,180,255,.68);box-shadow:13px -9px 0 rgba(31,118,255,.7);padding:0 14px 9px 8px}
 .identity-plate{position:relative;height:100%;background:#020203;padding:13px 17px 0}
 .level{position:absolute;right:36px;top:-5px;color:#fff;font-size:62px;line-height:1.2;font-style:italic;font-weight:400}
@@ -117,7 +119,8 @@ button:focus-visible{outline:3px solid white;outline-offset:7px}
 @media(max-width:700px) and (orientation:portrait){
   html,body{min-width:320px;overflow-y:auto}
   .stage{position:relative;left:0;top:0;width:100%;height:100dvh;min-height:620px;transform:none;box-shadow:none}
-  .backdrop{background-size:auto 100%;background-position:27% center;opacity:.65}
+  .elizabeth{display:none}
+.backdrop{background-size:auto 100%;background-position:27% center;opacity:.65}
   .stage:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent,rgba(1,5,22,.55));z-index:-1;pointer-events:none}
   .identity{left:15px;top:20px;width:205px;height:88px;padding:0 7px 5px;box-shadow:7px -5px 0 rgba(31,118,255,.7)}
   .identity-plate{padding:6px 8px}.level{font-size:34px;right:18px;top:0}.level span{font-size:22px}.name-label{padding-top:28px;font-size:10px;gap:5px}.player-name{font-size:25px;letter-spacing:1px;padding:0 3px}

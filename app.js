@@ -99,6 +99,12 @@
   const fusion = window.buildFusionRecipes(entries, window.FUSION_CHART, window.SPECIAL_RECIPES);
   const fusionPanel = document.getElementById('fusion-panel');
   const fusionRecipes = document.getElementById('fusion-recipes');
+  const selectSound = new Audio('assets/select.ogg');
+  const closeSound = new Audio('assets/close.ogg');
+  function playSound(sound) {
+    sound.currentTime = 0;
+    sound.play().catch(() => { /* No sound file, or it failed to load. */ });
+  }
   function ingredientButton(entry) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -162,6 +168,7 @@
     const entry = entries[id];
     if (!entry) return;
     const recipes = fusion.recipes.get(id);
+    playSound(selectSound);
     document.getElementById('fusion-arcana').textContent = entry.arcana;
     document.getElementById('fusion-title').textContent = entry.name;
     document.getElementById('fusion-level').textContent = entry.level;
@@ -187,6 +194,7 @@
     announcer.textContent = `${entry.name}: ${recipes.length ? `${recipes.length} ${recipes.length === 1 ? 'recipe' : 'recipes'}` : 'cannot be fused'}.`;
   }
   function closeFusion() {
+    if (!fusionPanel.hidden) playSound(closeSound);
     fusionPanel.hidden = true;
     list.focus({ preventScroll: true });
   }
@@ -308,6 +316,28 @@
     });
   }
 
+  // Welcome sound for leaving the start screen.
+  const startSound = new Audio('assets/welcome.ogg');
+  startSound.preload = 'auto';
+  function playStartSound() {
+    startSound.currentTime = 0;
+    startSound.play().catch(() => { /* No sound file, or it failed to load. */ });
+  }
+
+  // Clicking Elizabeth in the backdrop plays one of her lines, never the same one twice in a row.
+  const elizabethLines = Array.from({ length: 13 }, (_, index) => {
+    const line = new Audio(`assets/elizabeth/${index + 1}.wav`);
+    line.volume = 0.5;
+    return line;
+  });
+  let elizabethLine;
+  document.getElementById('elizabeth').addEventListener('click', () => {
+    if (elizabethLine) elizabethLine.pause();
+    const others = elizabethLines.filter(line => line !== elizabethLine);
+    elizabethLine = others[Math.floor(Math.random() * others.length)];
+    playSound(elizabethLine);
+  });
+
   // The start screen's click or key press also lets the browser play sound.
   const startScreen = document.getElementById('start-screen');
   let started = false;
@@ -321,7 +351,7 @@
     startScreen.classList.add('is-hidden');
     document.documentElement.requestFullscreen?.().catch(() => { /* The browser or an iframe may refuse. */ });
     setTimeout(() => { startScreen.hidden = true; }, 450);
-    playHoverSound();
+    playStartSound();
     if (music.paused) {
       music.volume = musicVolume;
       music.play().catch(() => { /* No music file, or it failed to load. */ });

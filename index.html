@@ -45,6 +45,22 @@
       <button class="sort sort-alphabet" data-sort="name" aria-pressed="false">By Alphabet</button>
     </nav>
 
+    <div class="unlock-bar">
+      <label class="unlock-toggle"><input id="hide-unlockable" type="checkbox"><span>Hide unlockable Personas</span></label>
+      <button id="unlock-menu-button" class="unlock-more" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="unlock-menu" aria-label="Choose unlocked Personas">⋯</button>
+    </div>
+    <section id="unlock-menu" class="unlock-menu" role="dialog" aria-labelledby="unlock-menu-title" hidden>
+      <header class="unlock-header">
+        <h2 class="unlock-title" id="unlock-menu-title">Unlocked Personas</h2>
+        <button class="fusion-close" id="unlock-close" type="button" aria-label="Close">✕</button>
+      </header>
+      <div class="unlock-body">
+        <h3 class="info-heading">Completed Social Links</h3>
+        <div class="unlock-options" id="social-link-options"></div>
+        <h3 class="info-heading">Special fusions you can make</h3>
+        <div class="unlock-options" id="special-options"></div>
+      </div>
+    </section>
 
     <header class="heading">
       <div class="compendium-title">Compendium</div>

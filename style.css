@@ -100,6 +100,24 @@ button:focus-visible{outline:3px solid white;outline-offset:7px}
 .fusion-ingredient:focus-visible{outline-offset:2px}
 .fusion-ingredient small{color:var(--cyan);font-size:20px;font-style:italic;font-weight:400}
 .fusion-ingredient:hover small{color:#4d1bcc}
+.unlock-bar{position:absolute;left:940px;top:226px;z-index:4;display:flex;align-items:center;gap:6px;padding:4px 4px 4px 16px;border-radius:26px;background:#030204;color:#fff;box-shadow:6px 6px 0 rgba(31,118,255,.7);transform:rotate(-3deg)}
+.unlock-toggle{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:600;cursor:pointer;user-select:none;white-space:nowrap}
+.unlock-bar input,.unlock-option input{appearance:none;flex:none;width:26px;height:26px;margin:0;border:3px solid var(--cyan);border-radius:4px;background:#030204;cursor:pointer}
+.unlock-bar input:checked,.unlock-option input:checked{background:var(--cyan) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='%230b0752' stroke-width='2.6'/%3E%3C/svg%3E") center/100% no-repeat}
+.unlock-bar input:focus-visible,.unlock-option input:focus-visible{outline:3px solid white;outline-offset:3px}
+.unlock-more{width:44px;height:44px;border-radius:50%;background:#303030;font:bold 30px Arial,sans-serif;line-height:1}
+.unlock-more:hover,.unlock-more[aria-expanded=true]{background:var(--cyan);color:#050807}
+.unlock-more:focus-visible{outline-offset:2px}
+.unlock-menu{position:absolute;left:773px;top:285px;width:973px;height:637px;z-index:5;display:flex;flex-direction:column;background:#06091a;border-left:10px solid var(--cyan);box-shadow:12px 12px 0 rgba(84,32,217,.55);color:#fff}
+.unlock-menu[hidden]{display:none}
+.unlock-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px 12px 18px;background:var(--cyan);color:#0b0752}
+.unlock-title{margin:0;font-size:42px;font-style:italic;font-weight:700;line-height:1.05}
+.unlock-body{flex:1;min-height:0;overflow-y:auto;padding:0 14px 14px 20px;scrollbar-color:var(--cyan) #242429}
+.unlock-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 16px}
+.unlock-option{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:12px;padding:6px 6px;border-radius:4px;cursor:pointer;user-select:none}
+.unlock-option:hover{background:#1d2238}
+.unlock-label{font-size:25px;font-weight:600;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unlock-detail{grid-column:2;color:var(--cyan);font-size:18px;font-style:italic;line-height:1.1}
 .start-screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow:hidden;background:#020516;color:#fff;text-align:center;transition:opacity .45s,visibility .45s}
 .start-screen:before{content:'';position:absolute;inset:-40px;z-index:-1;background:url('assets/velvet-room.png') center/cover;filter:blur(14px) brightness(.35) saturate(1.3)}
 .start-screen:focus-visible{outline:0}
@@ -133,7 +151,9 @@ button:focus-visible{outline:3px solid white;outline-offset:7px}
   .list-panel{left:23px;right:14px;top:353px;bottom:76px;width:auto;height:auto}
   .persona-row{height:55px;grid-template-columns:75px 38px 15px minmax(0,1fr) 48px;gap:4px;padding:0 9px 0 6px;border-left-width:5px;border-right-width:4px;border-bottom-width:2px;background:rgba(15,20,25,.94)}
   .persona-row:before,.persona-row:after{width:10px;height:10px;bottom:-6px}.persona-row:before{left:-6px}.persona-row:after{right:-6px}
-  .arcana{font-size:22px;height:32px;line-height:29px;letter-spacing:-.8px}.row-level{font-size:37px;letter-spacing:-1px}.row-marker{font-size:19px}.row-name{font-size:27px}.row-name.placeholder{letter-spacing:0;background-size:100% 2px;background-image:repeating-linear-gradient(90deg,var(--dash-color,#06514d) 0 9px,transparent 9px 12px)}.row-cost{font-size:24px}.row-cost.placeholder{font-size:19px;letter-spacing:0;background-size:100% 1px;background-image:repeating-linear-gradient(90deg,var(--dash-color,#07524d) 0 5px,transparent 5px 7px)}
+  .arcana{font-size:min(22px,calc(148px / var(--length,1)));height:32px;line-height:29px;letter-spacing:-.8px}.row-level{font-size:37px;letter-spacing:-1px}.row-marker{font-size:19px}.row-name{font-size:27px}.row-name.placeholder{letter-spacing:0;background-size:100% 2px;background-image:repeating-linear-gradient(90deg,var(--dash-color,#06514d) 0 9px,transparent 9px 12px)}.row-cost{font-size:24px}.row-cost.placeholder{font-size:19px;letter-spacing:0;background-size:100% 1px;background-image:repeating-linear-gradient(90deg,var(--dash-color,#07524d) 0 5px,transparent 5px 7px)}
+  .unlock-bar{left:16px;right:16px;top:304px;justify-content:space-between;padding:2px 2px 2px 10px;transform:none;box-shadow:4px 4px 0 rgba(31,118,255,.7)}.unlock-toggle{gap:8px;font-size:17px}.unlock-bar input,.unlock-option input{width:20px;height:20px;border-width:2px}.unlock-more{width:34px;height:34px;font-size:22px}
+  .unlock-menu{left:10px;right:10px;top:300px;bottom:10px;width:auto;height:auto;border-left-width:6px;box-shadow:6px 6px 0 rgba(84,32,217,.55)}.unlock-header{padding:8px 10px}.unlock-title{font-size:26px}.unlock-body{padding:0 8px 8px 12px}.unlock-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 8px}.unlock-option{column-gap:8px;padding:5px 4px}.unlock-label{font-size:17px}.unlock-detail{font-size:13px}
   .scroll-track{left:8px;top:353px;bottom:76px;width:6px;height:auto}.fusion-panel{left:10px;right:10px;top:300px;bottom:10px;width:auto;border-left-width:6px;box-shadow:6px 6px 0 rgba(84,32,217,.55)}.fusion-header{gap:8px;padding:8px 10px}.fusion-arcana{font-size:17px;padding:1px 8px 2px}.fusion-title{font-size:28px}.fusion-level{font-size:24px;letter-spacing:-1px}.fusion-close{width:34px;height:34px;font-size:18px}.fusion-body{padding:0 8px 8px 12px}.fusion-summary{font-size:17px}.info-heading{font-size:16px;margin:12px 0 6px}.stats{padding-left:16px}.stat-row{font-size:18px;grid-template-columns:28px 28px minmax(0,1fr);gap:6px}.stat-value{font-size:18px}.stat-bar{height:11px;box-shadow:3px 3px 0 #0a1150}.affinity-name{font-size:11px}.affinity-value{font-size:14px;padding:4px 0}.skills{font-size:16px}.skill-element{min-width:0;font-size:12px;padding:1px 5px 2px}.fusion-recipe{font-size:19px;gap:2px 6px;padding:6px 0}.fusion-ingredient small{font-size:14px}.scroll-thumb{left:1px;width:4px;height:36px}
 }
 @media(max-width:360px) and (orientation:portrait){

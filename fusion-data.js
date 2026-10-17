@@ -55,3 +55,29 @@ window.SPECIAL_RECIPES = {
   "Orpheus Telos": ["Thanatos", "Asura", "Chi You", "Metatron", "Helel", "Messiah"],
   "Satanael": ["Orpheus", "Michael", "Thanatos", "Satan", "Helel", "Lucifer"],
 };
+
+// The Persona each arcana unlocks for fusion once its Social Link reaches max rank.
+window.SOCIAL_LINK_PERSONAS = {
+  "Fool": "Susano-o",
+  "Magician": "Surt",
+  "Priestess": "Scathach",
+  "Empress": "Alilat",
+  "Emperor": "Odin",
+  "Hierophant": "Kohryu",
+  "Lovers": "Cybele",
+  "Chariot": "Thor",
+  "Justice": "Melchizedek",
+  "Hermit": "Arahabaki",
+  "Fortune": "Norn",
+  "Strength": "Atavaka",
+  "Hanged Man": "Attis",
+  "Death": "Thanatos",
+  "Temperance": "Byakko",
+  "Devil": "Beelzebub",
+  "Tower": "Chi You",
+  "Star": "Helel",
+  "Moon": "Sandalphon",
+  "Sun": "Asura",
+  "Judgement": "Messiah",
+  "Aeon": "Metatron",
+};

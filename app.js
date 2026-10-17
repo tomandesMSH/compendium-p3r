@@ -9,6 +9,11 @@
   const entries = window.COMPENDIUM_ENTRIES.map((entry, id) => ({ ...entry, id }));
   const arcanaOrder = ['Fool', 'Magician', 'Priestess', 'Empress', 'Emperor', 'Hierophant', 'Lovers', 'Chariot', 'Justice', 'Hermit', 'Fortune', 'Strength', 'Hanged Man', 'Death', 'Temperance', 'Devil', 'Tower', 'Star', 'Moon', 'Sun', 'Judgement', 'Aeon'];
   const locked = new Set();
+  const statNames = ['St', 'Ma', 'En', 'Ag', 'Lu'];
+  const affinityElements = ['Slash', 'Strike', 'Pierce', 'Fire', 'Ice', 'Elec', 'Wind', 'Light', 'Dark'];
+  const affinityLabels = { '-': '—', w: 'Weak', s: 'Resist', n: 'Null', r: 'Repel', d: 'Drain' };
+  const skillElements = { sla: 'Slash', str: 'Strike', pie: 'Pierce', fir: 'Fire', ice: 'Ice', ele: 'Elec', win: 'Wind', lig: 'Light', dar: 'Dark', alm: 'Almighty', ail: 'Ailment', rec: 'Healing', sup: 'Support', spe: 'Special', pas: 'Passive' };
+  function recipeCount(count) { return `${count} ${count === 1 ? 'recipe' : 'recipes'}`; }
   let currentSort = 'level';
   let visible = [];
   let selectedId;
@@ -44,11 +49,12 @@
     const rank = arcanaOrder.indexOf(arcana);
     return rank < 0 ? arcanaOrder.length : rank;
   }
-  function render() {
-    visible = [...entries].sort((a, b) => {
+  function render(keepScroll = false) {
+    const scrollTop = list.scrollTop;
+    visible = entries.filter(entry => !hideUnlockable || isUnlocked(entry)).sort((a, b) => {
       if (currentSort === 'level') return a.level - b.level || a.name.localeCompare(b.name);
       if (currentSort === 'arcana') return arcanaRank(a.arcana) - arcanaRank(b.arcana) || a.level - b.level || a.name.localeCompare(b.name);
-      return String(a.name).localeCompare(String(b.name)) || a.level - b.level;
+      return String(a.name).localeCompare(String(b.name), 'en') || a.level - b.level;
     });
     if (!visible.some(entry => entry.id === selectedId)) selectedId = visible[0]?.id;
     const fragment = document.createDocumentFragment();
@@ -59,8 +65,11 @@
       row.dataset.id = entry.id;
       row.setAttribute('role', 'option');
       row.setAttribute('aria-label', rowLabel(entry));
+      const arcanaCell = makeCell('arcana', entry.arcana || '-------');
+      // Lets the narrow phone layout shrink long arcana names to fit.
+      arcanaCell.style.setProperty('--length', arcanaCell.textContent.length);
       row.append(
-        makeCell('arcana', entry.arcana || '-------'),
+        arcanaCell,
         makeCell('row-level', entry.level),
         makeCell('row-marker', locked.has(entry.id) ? '♥' : '·'),
         makeCell(`row-name${isBlank(entry.name) ? ' placeholder' : ''}`, entry.name || '-------'),
@@ -70,8 +79,8 @@
       fragment.append(row);
     }
     list.replaceChildren(fragment);
-    list.scrollTop = 0;
-    select(selectedId);
+    list.scrollTop = keepScroll ? scrollTop : 0;
+    select(selectedId, !keepScroll);
     updateScrollbar();
   }
   function select(id, scroll = true) {
@@ -116,10 +125,6 @@
     return button;
   }
   const personaData = window.PERSONA_DATA || {};
-  const statNames = ['St', 'Ma', 'En', 'Ag', 'Lu'];
-  const affinityElements = ['Slash', 'Strike', 'Pierce', 'Fire', 'Ice', 'Elec', 'Wind', 'Light', 'Dark'];
-  const affinityLabels = { '-': '—', w: 'Weak', s: 'Resist', n: 'Null', r: 'Repel', d: 'Drain' };
-  const skillElements = { sla: 'Slash', str: 'Strike', pie: 'Pierce', fir: 'Fire', ice: 'Ice', ele: 'Elec', win: 'Wind', lig: 'Light', dar: 'Dark', alm: 'Almighty', ail: 'Ailment', rec: 'Healing', sup: 'Support', spe: 'Special', pas: 'Passive' };
   function infoHeading(text) {
     const heading = document.createElement('h3');
     heading.className = 'info-heading';
@@ -165,17 +170,24 @@
     info.replaceChildren(infoHeading('Stats'), stats, infoHeading('Affinities'), affinities, infoHeading('Skills'), skills);
   }
   function openFusion(id) {
-    const entry = entries[id];
-    if (!entry) return;
-    const recipes = fusion.recipes.get(id);
+    if (!entries[id]) return;
     playSound(selectSound);
+    fillFusion(id);
+    document.getElementById('fusion-body').scrollTop = 0;
+    fusionPanel.hidden = false;
+    const count = fusion.recipes.get(id).length;
+    announcer.textContent = `${entries[id].name}: ${count ? recipeCount(count) : 'cannot be fused'}.`;
+  }
+  function fillFusion(id) {
+    const entry = entries[id];
+    const recipes = fusion.recipes.get(id);
     document.getElementById('fusion-arcana').textContent = entry.arcana;
     document.getElementById('fusion-title').textContent = entry.name;
     document.getElementById('fusion-level').textContent = entry.level;
     let summary;
     if (!recipes.length) summary = 'Cannot be created by fusion.';
     else if (fusion.isSpecial(entry)) summary = `Special fusion of ${recipes[0].length} Personas:`;
-    else summary = `${recipes.length} ${recipes.length === 1 ? 'recipe' : 'recipes'}, lowest-level ingredients first${entry.dlc ? ' (needs its DLC)' : ''}:`;
+    else summary = `${recipeCount(recipes.length)}, lowest-level ingredients first${entry.dlc ? ' (needs its DLC)' : ''}:`;
     document.getElementById('fusion-summary').textContent = summary;
     const fragment = document.createDocumentFragment();
     for (const recipe of recipes) {
@@ -189,9 +201,6 @@
     }
     fusionRecipes.replaceChildren(fragment);
     renderInfo(entry);
-    document.getElementById('fusion-body').scrollTop = 0;
-    fusionPanel.hidden = false;
-    announcer.textContent = `${entry.name}: ${recipes.length ? `${recipes.length} ${recipes.length === 1 ? 'recipe' : 'recipes'}` : 'cannot be fused'}.`;
   }
   function closeFusion() {
     if (!fusionPanel.hidden) playSound(closeSound);
@@ -205,6 +214,76 @@
     openFusion(Number(button.dataset.id));
   });
   document.getElementById('fusion-close').addEventListener('click', closeFusion);
+
+  // Personas that need a maxed Social Link or a special fusion can be hidden until the player has them.
+  const hideToggle = document.getElementById('hide-unlockable');
+  const unlockMenu = document.getElementById('unlock-menu');
+  const unlockButton = document.getElementById('unlock-menu-button');
+  const socialLinkPersonas = window.SOCIAL_LINK_PERSONAS || {};
+  function loadSet(key) {
+    try { return new Set(JSON.parse(localStorage.getItem(key)) || []); } catch { return new Set(); }
+  }
+  function saveSet(key, set) {
+    try { localStorage.setItem(key, JSON.stringify([...set])); } catch { /* The choice just won't be remembered. */ }
+  }
+  const completedLinks = loadSet('compendium.socialLinks');
+  const fusableSpecials = loadSet('compendium.specialFusions');
+  let hideUnlockable = false;
+  try { hideUnlockable = localStorage.getItem('compendium.hideUnlockable') === '1'; } catch { /* Starts with everything shown. */ }
+  hideToggle.checked = hideUnlockable;
+  function isUnlocked(entry) {
+    if (socialLinkPersonas[entry.arcana] === entry.name && !completedLinks.has(entry.arcana)) return false;
+    return !fusion.isSpecial(entry) || fusableSpecials.has(entry.name);
+  }
+  hideToggle.addEventListener('change', () => {
+    hideUnlockable = hideToggle.checked;
+    try { localStorage.setItem('compendium.hideUnlockable', hideUnlockable ? '1' : '0'); } catch { /* Not remembered. */ }
+    render(true);
+  });
+  function unlockOption(label, detail, set, key, value) {
+    const option = document.createElement('label');
+    option.className = 'unlock-option';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = set.has(value);
+    input.addEventListener('change', () => {
+      if (input.checked) set.add(value); else set.delete(value);
+      saveSet(key, set);
+      if (hideUnlockable) render(true);
+    });
+    option.append(input, makeCell('unlock-label', label), makeCell('unlock-detail', detail));
+    return option;
+  }
+  function renderUnlockOptions() {
+    document.getElementById('social-link-options').replaceChildren(...arcanaOrder
+      .filter(arcana => socialLinkPersonas[arcana])
+      .map(arcana => unlockOption(arcana, socialLinkPersonas[arcana], completedLinks, 'compendium.socialLinks', arcana)));
+    document.getElementById('special-options').replaceChildren(...entries
+      .filter(entry => fusion.isSpecial(entry))
+      .sort((a, b) => a.level - b.level)
+      .map(entry => unlockOption(entry.name, `${entry.arcana} ${entry.level}`, fusableSpecials, 'compendium.specialFusions', entry.name)));
+  }
+  function openUnlockMenu() {
+    playSound(selectSound);
+    unlockMenu.hidden = false;
+    unlockButton.setAttribute('aria-expanded', 'true');
+    unlockMenu.querySelector('input')?.focus();
+  }
+  function closeUnlockMenu() {
+    if (unlockMenu.hidden) return;
+    playSound(closeSound);
+    unlockMenu.hidden = true;
+    unlockButton.setAttribute('aria-expanded', 'false');
+    unlockButton.focus({ preventScroll: true });
+  }
+  unlockButton.addEventListener('click', () => { if (unlockMenu.hidden) openUnlockMenu(); else closeUnlockMenu(); });
+  document.getElementById('unlock-close').addEventListener('click', closeUnlockMenu);
+  unlockMenu.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeUnlockMenu(); }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!unlockMenu.hidden && !event.target.closest('.unlock-menu, .unlock-more')) closeUnlockMenu();
+  });
 
   // Browsers keep audio muted until the first click or key press on the page.
   const hoverSound = new Audio('assets/hoversfx.ogg');
@@ -278,6 +357,10 @@
   }
   document.addEventListener('keydown', event => {
     if (event.ctrlKey || event.altKey || event.metaKey || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable) return;
+    if (event.target.closest('.unlock-menu, .unlock-bar')) {
+      if (event.key === 'Escape') { event.preventDefault(); closeUnlockMenu(); }
+      return;
+    }
     const key = event.key.toLowerCase();
     if (key === 'f') { event.preventDefault(); toggleLock(); }
     else if (key === 'c' || key === 'escape') { event.preventDefault(); if (fusionPanel.hidden) goBack(); else closeFusion(); }
@@ -366,6 +449,8 @@
   document.addEventListener('keydown', startOnKey, true);
   startScreen.addEventListener('click', start);
   startScreen.focus();
+
+  renderUnlockOptions();
 
   render();
   resize();

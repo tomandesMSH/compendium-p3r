@@ -51,7 +51,7 @@
   }
   function render(keepScroll = false) {
     const scrollTop = list.scrollTop;
-    visible = entries.filter(entry => !hideUnlockable || isUnlocked(entry)).sort((a, b) => {
+    visible = entries.filter(isShown).sort((a, b) => {
       if (currentSort === 'level') return a.level - b.level || a.name.localeCompare(b.name);
       if (currentSort === 'arcana') return arcanaRank(a.arcana) - arcanaRank(b.arcana) || a.level - b.level || a.name.localeCompare(b.name);
       return String(a.name).localeCompare(String(b.name), 'en') || a.level - b.level;
@@ -215,74 +215,104 @@
   });
   document.getElementById('fusion-close').addEventListener('click', closeFusion);
 
-  // Personas that need a maxed Social Link or a special fusion can be hidden until the player has them.
-  const hideToggle = document.getElementById('hide-unlockable');
-  const unlockMenu = document.getElementById('unlock-menu');
-  const unlockButton = document.getElementById('unlock-menu-button');
+  // Filters: hide DLC Personas, or any ticked Social Link or special fusion Persona.
+  const filterMenu = document.getElementById('filter-menu');
+  const filterButton = document.getElementById('filter-button');
+  const filterCount = document.getElementById('filter-count');
   const socialLinkPersonas = window.SOCIAL_LINK_PERSONAS || {};
-  function loadSet(key) {
-    try { return new Set(JSON.parse(localStorage.getItem(key)) || []); } catch { return new Set(); }
+  function load(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
-  function saveSet(key, set) {
-    try { localStorage.setItem(key, JSON.stringify([...set])); } catch { /* The choice just won't be remembered. */ }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* The choice just won't be remembered. */ }
   }
-  const completedLinks = loadSet('compendium.socialLinks');
-  const fusableSpecials = loadSet('compendium.specialFusions');
-  let hideUnlockable = false;
-  try { hideUnlockable = localStorage.getItem('compendium.hideUnlockable') === '1'; } catch { /* Starts with everything shown. */ }
-  hideToggle.checked = hideUnlockable;
-  function isUnlocked(entry) {
-    if (socialLinkPersonas[entry.arcana] === entry.name && !completedLinks.has(entry.arcana)) return false;
-    return !fusion.isSpecial(entry) || fusableSpecials.has(entry.name);
+  const hiddenLinks = new Set(load('compendium.hiddenSocialLinks', []));
+  const hiddenSpecials = new Set(load('compendium.hiddenSpecials', []));
+  let showDlc = load('compendium.showDlc', true);
+  function isShown(entry) {
+    if (entry.dlc && !showDlc) return false;
+    if (socialLinkPersonas[entry.arcana] === entry.name && hiddenLinks.has(entry.arcana)) return false;
+    return !(fusion.isSpecial(entry) && hiddenSpecials.has(entry.name));
   }
-  hideToggle.addEventListener('change', () => {
-    hideUnlockable = hideToggle.checked;
-    try { localStorage.setItem('compendium.hideUnlockable', hideUnlockable ? '1' : '0'); } catch { /* Not remembered. */ }
+  function updateFilterCount() {
+    const active = [!showDlc, hiddenLinks.size, hiddenSpecials.size].filter(Boolean).length;
+    filterCount.hidden = !active;
+    filterCount.textContent = active;
+    filterButton.setAttribute('aria-label', active ? `Filters, ${active} active` : 'Filters');
+  }
+  const dlcSwitch = document.getElementById('show-dlc');
+  dlcSwitch.checked = showDlc;
+  dlcSwitch.addEventListener('change', () => {
+    showDlc = dlcSwitch.checked;
+    save('compendium.showDlc', showDlc);
+    updateFilterCount();
     render(true);
   });
-  function unlockOption(label, detail, set, key, value) {
-    const option = document.createElement('label');
-    option.className = 'unlock-option';
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.checked = set.has(value);
-    input.addEventListener('change', () => {
-      if (input.checked) set.add(value); else set.delete(value);
-      saveSet(key, set);
-      if (hideUnlockable) render(true);
+  // One category of tick boxes, plus a "Hide all" box that ticks or clears every one of them.
+  function filterCategory(allId, listId, key, set, options) {
+    const all = document.getElementById(allId);
+    const inputs = options.map(([label, detail, value]) => {
+      const option = document.createElement('label');
+      option.className = 'filter-option';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.value = value;
+      input.checked = set.has(value);
+      option.append(input, makeCell('filter-label', label), makeCell('filter-detail', detail));
+      return input;
     });
-    option.append(input, makeCell('unlock-label', label), makeCell('unlock-detail', detail));
-    return option;
+    function sync() {
+      all.checked = set.size === inputs.length;
+      all.indeterminate = set.size > 0 && set.size < inputs.length;
+      save(key, [...set]);
+      updateFilterCount();
+      render(true);
+    }
+    for (const input of inputs) {
+      input.addEventListener('change', () => {
+        if (input.checked) set.add(input.value); else set.delete(input.value);
+        sync();
+      });
+    }
+    all.addEventListener('change', () => {
+      for (const input of inputs) {
+        input.checked = all.checked;
+        if (all.checked) set.add(input.value); else set.delete(input.value);
+      }
+      sync();
+    });
+    document.getElementById(listId).replaceChildren(...inputs.map(input => input.parentElement));
+    all.checked = set.size === inputs.length;
+    all.indeterminate = set.size > 0 && set.size < inputs.length;
   }
-  function renderUnlockOptions() {
-    document.getElementById('social-link-options').replaceChildren(...arcanaOrder
-      .filter(arcana => socialLinkPersonas[arcana])
-      .map(arcana => unlockOption(arcana, socialLinkPersonas[arcana], completedLinks, 'compendium.socialLinks', arcana)));
-    document.getElementById('special-options').replaceChildren(...entries
-      .filter(entry => fusion.isSpecial(entry))
-      .sort((a, b) => a.level - b.level)
-      .map(entry => unlockOption(entry.name, `${entry.arcana} ${entry.level}`, fusableSpecials, 'compendium.specialFusions', entry.name)));
-  }
-  function openUnlockMenu() {
+  filterCategory('hide-social-links', 'social-link-options', 'compendium.hiddenSocialLinks', hiddenLinks, arcanaOrder
+    .filter(arcana => socialLinkPersonas[arcana])
+    .map(arcana => [arcana, socialLinkPersonas[arcana], arcana]));
+  filterCategory('hide-specials', 'special-options', 'compendium.hiddenSpecials', hiddenSpecials, entries
+    .filter(entry => fusion.isSpecial(entry))
+    .sort((a, b) => a.level - b.level)
+    .map(entry => [entry.name, `${entry.arcana} ${entry.level}`, entry.name]));
+  updateFilterCount();
+  function openFilters() {
     playSound(selectSound);
-    unlockMenu.hidden = false;
-    unlockButton.setAttribute('aria-expanded', 'true');
-    unlockMenu.querySelector('input')?.focus();
+    filterMenu.hidden = false;
+    filterButton.setAttribute('aria-expanded', 'true');
+    filterMenu.querySelector('input')?.focus();
   }
-  function closeUnlockMenu() {
-    if (unlockMenu.hidden) return;
+  function closeFilters() {
+    if (filterMenu.hidden) return;
     playSound(closeSound);
-    unlockMenu.hidden = true;
-    unlockButton.setAttribute('aria-expanded', 'false');
-    unlockButton.focus({ preventScroll: true });
+    filterMenu.hidden = true;
+    filterButton.setAttribute('aria-expanded', 'false');
+    filterButton.focus({ preventScroll: true });
   }
-  unlockButton.addEventListener('click', () => { if (unlockMenu.hidden) openUnlockMenu(); else closeUnlockMenu(); });
-  document.getElementById('unlock-close').addEventListener('click', closeUnlockMenu);
-  unlockMenu.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeUnlockMenu(); }
+  filterButton.addEventListener('click', () => { if (filterMenu.hidden) openFilters(); else closeFilters(); });
+  document.getElementById('filter-close').addEventListener('click', closeFilters);
+  filterMenu.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeFilters(); }
   });
   document.addEventListener('pointerdown', event => {
-    if (!unlockMenu.hidden && !event.target.closest('.unlock-menu, .unlock-more')) closeUnlockMenu();
+    if (!filterMenu.hidden && !event.target.closest('.filter-menu, .filter-button')) closeFilters();
   });
 
   // Browsers keep audio muted until the first click or key press on the page.
@@ -357,8 +387,8 @@
   }
   document.addEventListener('keydown', event => {
     if (event.ctrlKey || event.altKey || event.metaKey || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable) return;
-    if (event.target.closest('.unlock-menu, .unlock-bar')) {
-      if (event.key === 'Escape') { event.preventDefault(); closeUnlockMenu(); }
+    if (event.target.closest('.filter-menu, .filter-button')) {
+      if (event.key === 'Escape') { event.preventDefault(); closeFilters(); }
       return;
     }
     const key = event.key.toLowerCase();
@@ -450,7 +480,6 @@
   startScreen.addEventListener('click', start);
   startScreen.focus();
 
-  renderUnlockOptions();
 
   render();
   resize();
